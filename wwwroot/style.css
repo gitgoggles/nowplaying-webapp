@@ -1,0 +1,45 @@
+body.main {
+	margin: 40px auto;
+	max-width: 36em;
+	line-height: 1.6;
+	font-size: 1.125rem;
+	color: #444;
+	padding: 0 10px;
+}
+
+h1,
+h2,
+h3 {
+	line-height: 1.2
+}
+
+#card {
+	/* padding: 0.5em; */
+	font-family: "Permanent Marker", cursive;
+	font-weight: 400;
+	font-style: normal;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(120px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+#card.htmx-added {
+	animation: slideIn 1000ms ease-in-out;
+}
+
+#title {
+	font-size: 2rem;
+}
+
+#artist {
+	font-size: 1rem;
+}

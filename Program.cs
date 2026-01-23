@@ -16,35 +16,89 @@ public partial class Program
 			app.MapOpenApi();
 		}
 
+		app.UseStaticFiles();
+		string commonHead = @"
+			<!DOCTYPE html>
+			<head>
+				<script defer src=""/htmx.2.0.8.min.js""></script>
+				<script defer src=""/only_swap_on_change.js""></script>
+				<link rel=""preconnect"" href=""https://fonts.googleapis.com"">
+				<link rel=""preconnect"" href=""https://fonts.gstatic.com"" crossorigin>
+				<link href=""https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap"" rel=""stylesheet"">
+				<link rel=""stylesheet"" href=""/style.css"">
+			</head>
+			";
+
 		app.MapGet("/", () =>
 		{
-			string hot_reload = """<script src="/_framework/aspnetcore-browser-refresh.js"></script>""";
-			string html = @"
-			<head>
-			<style>
-			body{margin:40px
-			auto;max-width:36em;line-height:1.6;font-size:1.125rem;color:#444;padding:0
-			10px}h1,h2,h3{line-height:1.2}
-			</style>
-			<script src=""https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js""></script>
-			</head>
-			<body>
-			<header>
-			<h1>What is <i>playing</i> right now?</h1>
-			<aside>Hopefully I can populate this with the currently playing song from Plex, Jellyfin or Mixxx.</aside>
-			<p>Mixxx: <span hx-get=""/hyprland-mixxx"" hx-trigger=""every 500ms""></span></p>
-			</header>
+			string html = $@"
+			{commonHead}
+			<body class=""main"">
+				<header>
+				<h1>What is <i>playing</i> right now?</h1>
+				<aside>Hopefully I can populate this with the currently playing song from Plex, Jellyfin or Mixxx.</aside>
+				</header>
+				<p>Mixxx: <span hx-get=""/hyprland-mixxx/full"" hx-trigger=""load, every 500ms""></span></p>
+				<div hx-get=""/animated"" hx-trigger=""load""></div>
 			</body>
 		";
-			html += hot_reload;
 			return Results.Content(html, "text/html");
 		});
 
-		app.MapGet("/hyprland-mixxx", () =>
+		app.MapGet("/{fetcher}/card", (string fetcher) =>
 				{
-					var fetcher = new HyprlandMixxxFetcher();
-					var nowplaying = fetcher.GetNowPlaying();
-					return Results.Content(nowplaying?.full, "text/html");
+					var nowplaying = fetcher switch
+					{
+						"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
+						_ => null
+					};
+
+					var html = nowplaying?.artistAndTitleAquired switch
+					{
+						true => $@"
+					<div id=""card"">
+						<div id=""title"">{nowplaying?.title}</div>
+						<div id=""artist"">{nowplaying?.artist}</div>
+					</div>
+					",
+						false => $@"
+					<div id=""card"">
+						<div id=""title"">{nowplaying?.full}</div>
+					</div>
+					",
+						_ => null
+					};
+
+					return Results.Content(html ?? "", "text/html");
+				});
+
+		app.MapGet("/{fetcher}/{field}", (string fetcher, string field) =>
+				{
+					var nowplaying = fetcher switch
+					{
+						"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
+						_ => null
+					};
+
+					var html = field switch
+					{
+						"artist" => nowplaying?.artist,
+						"title" => nowplaying?.title,
+						"full" => nowplaying?.full,
+						_ => null
+					};
+					return Results.Content(html ?? "", "text/html");
+				});
+
+		app.MapGet("/animated", () =>
+				{
+					var winning_fetcher = "hyprland-mixxx";
+					var html = $@"
+					{commonHead}
+					<div id=""card"" hx-get=""/{winning_fetcher}/card"" hx-trigger=""load, every 2s"" hx-swap=""settle:1s"">
+					</div>
+					";
+					return Results.Content(html, "text/html");
 				});
 
 		app.Run();
