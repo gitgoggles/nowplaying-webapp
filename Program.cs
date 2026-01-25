@@ -1,3 +1,5 @@
+using System.Net.ServerSentEvents;
+
 namespace nowplaying_webapp;
 
 public partial class Program
@@ -100,6 +102,35 @@ public partial class Program
 					";
 					return Results.Content(html, "text/html");
 				});
+
+		// app.MapGet("/events/card", () =>
+		// 		{
+		// 			async IAsyncEnumerable<SseItem<string>> Stream()
+		// 			{
+		// 				string? last = null;
+		//
+		// 				while (true)
+		// 				{
+		// var html = (await GetCardHtmlAsync()).Trim();
+		//
+		// if (html.Length > 0 && html != last)
+		// {
+		// 	last = html;
+		//
+		// 	// Event name must match sse-swap="card"
+		// 	yield return new SseItem<string>(html)
+		// 	{
+		// 		Event = "card"
+		// 		// Id = "...",  // optional: for Last-Event-ID reconnection semantics
+		// 	};
+		// }
+		//
+		// await Task.Delay(250);
+		// 		}
+		// 	}
+		//
+		// 	return TypedResults.ServerSentEvents(Stream());
+		// });
 
 		app.Run();
 	}
