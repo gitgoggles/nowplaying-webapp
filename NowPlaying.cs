@@ -6,7 +6,7 @@ public abstract class NowPlaying
 	public string? artist;
 	public string? full;
 	public string? title;
-	public bool artistAndTitleAquired;
+	public bool artistAndTitleAcquired;
 }
 
 public sealed class MixxxNowPlaying : NowPlaying
@@ -17,7 +17,7 @@ public sealed class MixxxNowPlaying : NowPlaying
 		artist = split?.Length == 2 ? split[0] : null;
 		title = split?.Length == 2 ? split[1] : null;
 		full = input;
-		artistAndTitleAquired = artist is not null && title is not null;
+		artistAndTitleAcquired = artist is not null && title is not null;
 	}
 
 }
