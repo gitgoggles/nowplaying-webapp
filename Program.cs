@@ -51,15 +51,17 @@ public partial class Program
 				{
 					async IAsyncEnumerable<SseItem<string>> Stream()
 					{
-						string? currentHtml = "";
+						string? currentHtml = null;
+
+						var fetcherInstance = fetcher switch
+						{
+							"hyprland-mixxx" => new HyprlandMixxxFetcher(),
+							_ => null
+						};
+
 						while (!ct.IsCancellationRequested)
 						{
-
-							var nowplaying = fetcher switch
-							{
-								"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
-								_ => null
-							};
+							var nowplaying = fetcherInstance?.GetNowPlaying();
 
 							var newHtml = field switch
 							{
@@ -69,7 +71,7 @@ public partial class Program
 								_ => null
 							};
 
-							if (!string.Equals(currentHtml, newHtml, StringComparison.Ordinal))
+							if (currentHtml != newHtml)
 							{
 								yield return new SseItem<string>(newHtml ?? "", eventType: "newNowPlayingField");
 								currentHtml = newHtml;
@@ -85,11 +87,11 @@ public partial class Program
 		app.MapGet("/animated-sse", () =>
 				{
 					var winning_fetcher = "hyprland-mixxx";
-					var html = $@"
+					var html = $"""
 					{commonHead}
-					<div id=""card"" hx-ext=""sse"" sse-connect=""/{winning_fetcher}/card-sse"" sse-swap=""newNowPlaying"" hx-swap=""settle:3s"">
+					<div id="card" hx-ext="sse" sse-connect="/{winning_fetcher}/card-sse" sse-swap="newNowPlaying" hx-swap="settle:3s">
 					</div>
-					";
+					""";
 					return Results.Content(html, "text/html");
 				});
 
@@ -97,33 +99,34 @@ public partial class Program
 				{
 					async IAsyncEnumerable<SseItem<string>> Stream()
 					{
-						string? currentHtml = "";
+						string? currentHtml = null;
+
+						var fetcherInstance = fetcher switch
+						{
+							"hyprland-mixxx" => new HyprlandMixxxFetcher(),
+							_ => null
+						};
+
 						while (!ct.IsCancellationRequested)
 						{
-
-							var nowplaying = fetcher switch
-							{
-								"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
-								_ => null
-							};
-
+							var nowplaying = fetcherInstance?.GetNowPlaying();
 							var newHtml = nowplaying?.artistAndTitleAcquired switch
 							{
-								true => $@"
-									<div id=""card"">
-										<div id=""title"">{nowplaying?.title}</div>
-										<div id=""artist"">{nowplaying?.artist}</div>
+								true => $"""
+									<div id="card">
+										<div id="title">{nowplaying.title}</div>
+										<div id="artist">{nowplaying.artist}</div>
 									</div>
-									",
-								false => $@"
-									<div id=""card"">
-										<div id=""title"">{nowplaying?.full}</div>
+									""",
+								false => $"""
+									<div id="card">
+										<div id="title">{nowplaying.full}</div>
 									</div>
-									",
+									""",
 								_ => null
 							};
 
-							if (!string.Equals(currentHtml, newHtml, StringComparison.Ordinal))
+							if (currentHtml != newHtml)
 							{
 								yield return new SseItem<string>(newHtml ?? "", eventType: "newNowPlaying");
 								currentHtml = newHtml;
