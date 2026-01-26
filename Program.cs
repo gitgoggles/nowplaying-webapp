@@ -24,7 +24,6 @@ public partial class Program
 			<head>
 				<script defer src=""/htmx.2.0.8.min.js""></script>
 				<script defer src=""/htmx-ext-sse@2.2.4.js""></script>
-				<script defer src=""/only_swap_on_change.js""></script>
 				<link rel=""preconnect"" href=""https://fonts.googleapis.com"">
 				<link rel=""preconnect"" href=""https://fonts.gstatic.com"" crossorigin>
 				<link href=""https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap"" rel=""stylesheet"">
@@ -41,67 +40,46 @@ public partial class Program
 				<h1>What is <i>playing</i> right now?</h1>
 				<aside>Hopefully I can populate this with the currently playing song from Plex, Jellyfin or Mixxx.</aside>
 				</header>
-				<p>Mixxx: <span hx-get=""/hyprland-mixxx/full"" hx-trigger=""load, every 500ms""></span></p>
+				<p>Mixxx: <span hx-ext=""sse"" sse-connect=""/hyprland-mixxx/full-sse"" sse-swap=""newNowPlayingField""></span></p>
 				<div hx-get=""/animated-sse"" hx-trigger=""load""></div>
 			</body>
 		";
 			return Results.Content(html, "text/html");
 		});
 
-		app.MapGet("/{fetcher}/card", (string fetcher) =>
+		app.MapGet("/{fetcher}/{field}-sse", (string fetcher, string field, CancellationToken ct) =>
 				{
-					var nowplaying = fetcher switch
+					async IAsyncEnumerable<SseItem<string>> Stream()
 					{
-						"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
-						_ => null
-					};
+						string? currentHtml = "";
+						while (!ct.IsCancellationRequested)
+						{
 
-					var html = nowplaying?.artistAndTitleAquired switch
-					{
-						true => $@"
-					<div id=""card"">
-						<div id=""title"">{nowplaying?.title}</div>
-						<div id=""artist"">{nowplaying?.artist}</div>
-					</div>
-					",
-						false => $@"
-					<div id=""card"">
-						<div id=""title"">{nowplaying?.full}</div>
-					</div>
-					",
-						_ => null
-					};
+							var nowplaying = fetcher switch
+							{
+								"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
+								_ => null
+							};
 
-					return Results.Content(html ?? "", "text/html");
-				});
+							var newHtml = field switch
+							{
+								"artist" => nowplaying?.artist,
+								"title" => nowplaying?.title,
+								"full" => nowplaying?.full,
+								_ => null
+							};
 
-		app.MapGet("/{fetcher}/{field}", (string fetcher, string field) =>
-				{
-					var nowplaying = fetcher switch
-					{
-						"hyprland-mixxx" => new HyprlandMixxxFetcher().GetNowPlaying(),
-						_ => null
-					};
+							if (!string.Equals(currentHtml, newHtml, StringComparison.Ordinal))
+							{
+								yield return new SseItem<string>(newHtml ?? "", eventType: "newNowPlayingField");
+								currentHtml = newHtml;
+							}
 
-					var html = field switch
-					{
-						"artist" => nowplaying?.artist,
-						"title" => nowplaying?.title,
-						"full" => nowplaying?.full,
-						_ => null
-					};
-					return Results.Content(html ?? "", "text/html");
-				});
+							await Task.Delay(250, ct);
 
-		app.MapGet("/animated", () =>
-				{
-					var winning_fetcher = "hyprland-mixxx";
-					var html = $@"
-					{commonHead}
-					<div id=""card"" hx-get=""/{winning_fetcher}/card"" hx-trigger=""load, every 2s"" hx-swap=""settle:1s"">
-					</div>
-					";
-					return Results.Content(html, "text/html");
+						}
+					}
+					return TypedResults.ServerSentEvents(Stream());
 				});
 
 		app.MapGet("/animated-sse", () =>
@@ -119,7 +97,7 @@ public partial class Program
 				{
 					async IAsyncEnumerable<SseItem<string>> Stream()
 					{
-						string currentHtml = "";
+						string? currentHtml = "";
 						while (!ct.IsCancellationRequested)
 						{
 
@@ -147,9 +125,7 @@ public partial class Program
 
 							if (!string.Equals(currentHtml, newHtml, StringComparison.Ordinal))
 							{
-								yield return new SseItem<string>(newHtml, eventType: "newNowPlaying")
-								{
-								};
+								yield return new SseItem<string>(newHtml ?? "", eventType: "newNowPlaying");
 								currentHtml = newHtml;
 							}
 
