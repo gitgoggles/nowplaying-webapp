@@ -107,7 +107,7 @@ public partial class Program
 								_ => null
 							};
 
-							var newHtml = nowplaying?.artistAndTitleAquired switch
+							var newHtml = nowplaying?.artistAndTitleAcquired switch
 							{
 								true => $@"
 									<div id=""card"">
