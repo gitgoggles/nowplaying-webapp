@@ -33,17 +33,17 @@ public partial class Program
 
 		app.MapGet("/", () =>
 		{
-			string html = $@"
+			string html = $"""
 			{commonHead}
-			<body class=""main"">
+			<body class="main">
 				<header>
 				<h1>What is <i>playing</i> right now?</h1>
 				<aside>Hopefully I can populate this with the currently playing song from Plex, Jellyfin or Mixxx.</aside>
 				</header>
-				<p>Mixxx: <span hx-ext=""sse"" sse-connect=""/hyprland-mixxx/full-sse"" sse-swap=""newNowPlayingField""></span></p>
-				<div hx-get=""/animated-sse"" hx-trigger=""load""></div>
+				<p>Mixxx: <span hx-ext="sse" sse-connect="/hyprland-mixxx/full-sse" sse-swap="newNowPlayingField"></span></p>
+				<div hx-get="/animated-sse" hx-trigger="load"></div>
 			</body>
-		";
+		""";
 			return Results.Content(html, "text/html");
 		});
 
@@ -65,9 +65,9 @@ public partial class Program
 
 							var newHtml = field switch
 							{
-								"artist" => nowplaying?.artist,
-								"title" => nowplaying?.title,
-								"full" => nowplaying?.full,
+								"artist" => nowplaying?.Artist,
+								"title" => nowplaying?.Title,
+								"full" => nowplaying?.Full,
 								_ => null
 							};
 
@@ -86,10 +86,11 @@ public partial class Program
 
 		app.MapGet("/animated-sse", () =>
 				{
-					var winning_fetcher = "hyprland-mixxx";
+					var winning_fetcher = "jellyfin";
+					// var winning_fetcher = "hyprland-mixxx";
 					var html = $"""
 					{commonHead}
-					<div id="card" hx-ext="sse" sse-connect="/{winning_fetcher}/card-sse" sse-swap="newNowPlaying" hx-swap="settle:3s">
+					<div hx-ext="sse" sse-connect="/{winning_fetcher}/card-sse" sse-swap="newNowPlaying" hx-swap="settle:3s">
 					</div>
 					""";
 					return Results.Content(html, "text/html");
@@ -101,26 +102,28 @@ public partial class Program
 					{
 						string? currentHtml = null;
 
-						var fetcherInstance = fetcher switch
+						Fetcher? fetcherInstance = fetcher switch
 						{
 							"hyprland-mixxx" => new HyprlandMixxxFetcher(),
+							"jellyfin" => new JellyfinFetcher(),
 							_ => null
 						};
 
 						while (!ct.IsCancellationRequested)
 						{
 							var nowplaying = fetcherInstance?.GetNowPlaying();
-							var newHtml = nowplaying?.artistAndTitleAcquired switch
+
+							var newHtml = nowplaying?.ArtistAndTitleAcquired switch
 							{
 								true => $"""
 									<div id="card">
-										<div id="title">{nowplaying.title}</div>
-										<div id="artist">{nowplaying.artist}</div>
+										<div id="title">{nowplaying.Title}</div>
+										<div id="artist">{nowplaying.Artist}</div>
 									</div>
 									""",
 								false => $"""
 									<div id="card">
-										<div id="title">{nowplaying.full}</div>
+										<div id="title">{nowplaying.Full}</div>
 									</div>
 									""",
 								_ => null
