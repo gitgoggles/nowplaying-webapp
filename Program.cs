@@ -40,7 +40,10 @@ public partial class Program
 				<h1>What is <i>playing</i> right now?</h1>
 				<aside>Hopefully I can populate this with the currently playing song from Plex, Jellyfin or Mixxx.</aside>
 				</header>
-				<p>Mixxx: <span hx-ext="sse" sse-connect="/hyprland-mixxx/full-sse" sse-swap="newNowPlayingField"></span></p>
+				<ul>
+				<li>Mixxx: <span hx-ext="sse" sse-connect="/hyprland-mixxx/full-sse" sse-swap="newNowPlayingField"></span></li>
+				<li>Jellyfin: <span hx-ext="sse" sse-connect="/jellyfin/full-sse" sse-swap="newNowPlayingField"></span></li>
+				</ul>
 				<div hx-get="/animated-sse" hx-trigger="load"></div>
 			</body>
 		""";
@@ -53,15 +56,21 @@ public partial class Program
 					{
 						string? currentHtml = null;
 
-						var fetcherInstance = fetcher switch
+						Fetcher? fetcherInstance = fetcher switch
 						{
 							"hyprland-mixxx" => new HyprlandMixxxFetcher(),
+							"jellyfin" => new JellyfinFetcher(),
 							_ => null
 						};
 
+						if (fetcherInstance is null)
+						{
+							yield break;
+						}
+
 						while (!ct.IsCancellationRequested)
 						{
-							var nowplaying = fetcherInstance?.GetNowPlaying();
+							var nowplaying = await fetcherInstance.GetNowPlayingAsync(ct);
 
 							var newHtml = field switch
 							{
@@ -109,9 +118,14 @@ public partial class Program
 							_ => null
 						};
 
+						if (fetcherInstance is null)
+						{
+							yield break;
+						}
+
 						while (!ct.IsCancellationRequested)
 						{
-							var nowplaying = fetcherInstance?.GetNowPlaying();
+							var nowplaying = await fetcherInstance.GetNowPlayingAsync(ct);
 
 							var newHtml = nowplaying?.ArtistAndTitleAcquired switch
 							{

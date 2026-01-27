@@ -3,9 +3,13 @@ using System.Text.RegularExpressions;
 
 namespace nowplaying_webapp;
 
+// The fetchers are for obtaining the data ONLY.
+// Parsing of the data is done by the NowPlaying class.
 public abstract class Fetcher
 {
-	protected string RunProcess(string file, string args)
+	public abstract string Name { get; }
+
+	protected async Task<string> RunProcess(string file, string args, CancellationToken ct)
 	{
 		var psi = new ProcessStartInfo(file, args)
 		{
@@ -14,25 +18,39 @@ public abstract class Fetcher
 		};
 
 		using var p = Process.Start(psi) ?? throw new InvalidOperationException($"Failed to start process: {file}");
-		var output = p.StandardOutput.ReadToEnd();
-		p.WaitForExit();
+		try
+		{
+			var output = await p.StandardOutput.ReadToEndAsync(ct);
+			await p.WaitForExitAsync(ct);
+			return output;
+		}
+		catch (TaskCanceledException)
+		{
+			if (!p.HasExited)
+			{
+				p.Kill(entireProcessTree: true);
+			}
 
-		return output;
+			throw;
+		}
 	}
 
-	public abstract NowPlaying? GetNowPlaying();
+	public abstract Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default);
 }
 
-public sealed class HyprlandMixxxFetcher : Fetcher
+// this is only partial to satisfy the regex generation
+public sealed partial class HyprlandMixxxFetcher : Fetcher
 {
-	private static readonly Regex MixxxTitleRegex =
-		new(@"title:\s*(?<t>.*?)\s*\|\s*Mixxx\s*$", RegexOptions.Multiline);
+	public override string Name => "hyprland-mixxx";
 
-	public override NowPlaying? GetNowPlaying()
+	[GeneratedRegex(@"title:\s*(?<t>.*?)\s*\|\s*Mixxx\s*$", RegexOptions.Multiline)]
+	private static partial Regex MixxxTitleRegex();
+
+	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
 	{
-		var hyprctlOutput = RunProcess("hyprctl", "clients");
+		var hyprctlOutput = await RunProcess("hyprctl", "clients", ct);
 
-		var m = MixxxTitleRegex.Match(hyprctlOutput);
+		var m = MixxxTitleRegex().Match(hyprctlOutput);
 		var parsed = m.Success ? m.Groups["t"].Value : null;
 		return new MixxxNowPlaying(parsed);
 	}
@@ -40,27 +58,32 @@ public sealed class HyprlandMixxxFetcher : Fetcher
 
 public sealed class JellyfinFetcher : Fetcher
 {
-	static readonly HttpClient Http = new();
-
-	public override NowPlaying? GetNowPlaying()
+	static readonly HttpClient Http = new()
 	{
-		string? jellyfinBaseUrl = Environment.GetEnvironmentVariable("JELLY_URL");
-		string? jellyfinApiToken = Environment.GetEnvironmentVariable("JELLY_API");
+		Timeout = TimeSpan.FromSeconds(5)
+	};
 
-		if (string.IsNullOrWhiteSpace(jellyfinBaseUrl) || string.IsNullOrWhiteSpace(jellyfinApiToken))
+	public override string Name => "jellyfin";
+
+	private readonly string? _jellyfinUrl = Environment.GetEnvironmentVariable("JELLY_URL");
+	private readonly string? _jellyfinApiToken = Environment.GetEnvironmentVariable("JELLY_API");
+
+	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
+	{
+		if (string.IsNullOrWhiteSpace(_jellyfinUrl) || string.IsNullOrWhiteSpace(_jellyfinApiToken))
 			return null;
 
-		var url = $"{jellyfinBaseUrl.TrimEnd("/")}/Sessions?activeWithinSeconds=60";
+		var url = $"{_jellyfinUrl.TrimEnd("/")}/Sessions?activeWithinSeconds=60";
 
 		try
 		{
 			using var req = new HttpRequestMessage(HttpMethod.Get, url);
-			req.Headers.Add("Authorization", $@"Mediabrowser Token=""{jellyfinApiToken}""");
+			req.Headers.Add("Authorization", $@"Mediabrowser Token=""{_jellyfinApiToken}""");
 			req.Headers.UserAgent.ParseAdd("nowplaying_webapp");
 
-			using var resp = Http.Send(req);
+			using var resp = await Http.SendAsync(req, ct);
 			resp.EnsureSuccessStatusCode();
-			var json = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+			var json = await resp.Content.ReadAsStringAsync(ct);
 
 			return new JellyfinNowPlaying(json);
 		}

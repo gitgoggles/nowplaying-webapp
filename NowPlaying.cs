@@ -2,6 +2,8 @@ using System.Text.Json;
 
 namespace nowplaying_webapp;
 
+// NowPlaying objects should parse the data
+// from the fetcher and return an object.
 public abstract class NowPlaying
 {
 	public string? Artist { get; protected init; }
