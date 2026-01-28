@@ -9,6 +9,7 @@ public partial class Program
 		var builder = WebApplication.CreateBuilder(args);
 
 		builder.Services.AddOpenApi();
+		builder.Services.AddMemoryCache();
 
 		builder.Services.AddHttpClient<JellyfinFetcher>(client =>
 				client.Timeout = TimeSpan.FromSeconds(5)

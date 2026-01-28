@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace nowplaying_webapp;
 
@@ -57,8 +58,9 @@ public sealed partial class HyprlandMixxxFetcher : Fetcher
 	}
 }
 
-public sealed class JellyfinFetcher(HttpClient http) : Fetcher
+public sealed class JellyfinFetcher(IMemoryCache cache, HttpClient http) : Fetcher
 {
+	private readonly IMemoryCache _cache = cache;
 	private readonly HttpClient _http = http;
 
 	public override string Name => "jellyfin";
@@ -67,6 +69,16 @@ public sealed class JellyfinFetcher(HttpClient http) : Fetcher
 	private readonly string? _jellyfinApiToken = Environment.GetEnvironmentVariable("JELLY_API");
 
 	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
+	{
+		return await _cache.GetOrCreateAsync("jellyfin:nowplaying", entry =>
+		{
+			entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+
+			return FetchFromJellyfinAsync();
+		});
+	}
+
+	private async Task<NowPlaying?> FetchFromJellyfinAsync()
 	{
 		if (string.IsNullOrWhiteSpace(_jellyfinUrl) || string.IsNullOrWhiteSpace(_jellyfinApiToken))
 			return null;
@@ -79,9 +91,9 @@ public sealed class JellyfinFetcher(HttpClient http) : Fetcher
 			req.Headers.Add("Authorization", $@"Mediabrowser Token=""{_jellyfinApiToken}""");
 			req.Headers.UserAgent.ParseAdd("nowplaying_webapp");
 
-			using var resp = await _http.SendAsync(req, ct);
+			using var resp = await _http.SendAsync(req, CancellationToken.None);
 			resp.EnsureSuccessStatusCode();
-			var json = await resp.Content.ReadAsStringAsync(ct);
+			var json = await resp.Content.ReadAsStringAsync(CancellationToken.None);
 
 			return new JellyfinNowPlaying(json);
 		}
@@ -89,7 +101,7 @@ public sealed class JellyfinFetcher(HttpClient http) : Fetcher
 		{
 			return null;
 		}
-		catch (TaskCanceledException) // timeout
+		catch (TaskCanceledException)
 		{
 			return null;
 		}
