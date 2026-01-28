@@ -52,16 +52,14 @@ public sealed partial class HyprlandMixxxFetcher : Fetcher
 
 		var m = MixxxTitleRegex().Match(hyprctlOutput);
 		var parsed = m.Success ? m.Groups["t"].Value : null;
+
 		return new MixxxNowPlaying(parsed);
 	}
 }
 
-public sealed class JellyfinFetcher : Fetcher
+public sealed class JellyfinFetcher(HttpClient http) : Fetcher
 {
-	static readonly HttpClient Http = new()
-	{
-		Timeout = TimeSpan.FromSeconds(5)
-	};
+	private readonly HttpClient _http = http;
 
 	public override string Name => "jellyfin";
 
@@ -81,7 +79,7 @@ public sealed class JellyfinFetcher : Fetcher
 			req.Headers.Add("Authorization", $@"Mediabrowser Token=""{_jellyfinApiToken}""");
 			req.Headers.UserAgent.ParseAdd("nowplaying_webapp");
 
-			using var resp = await Http.SendAsync(req, ct);
+			using var resp = await _http.SendAsync(req, ct);
 			resp.EnsureSuccessStatusCode();
 			var json = await resp.Content.ReadAsStringAsync(ct);
 

@@ -8,8 +8,11 @@ public partial class Program
 	{
 		var builder = WebApplication.CreateBuilder(args);
 
-		// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 		builder.Services.AddOpenApi();
+
+		builder.Services.AddHttpClient<JellyfinFetcher>(client =>
+				client.Timeout = TimeSpan.FromSeconds(5)
+				);
 
 		var app = builder.Build();
 
@@ -59,7 +62,7 @@ public partial class Program
 						Fetcher? fetcherInstance = fetcher switch
 						{
 							"hyprland-mixxx" => new HyprlandMixxxFetcher(),
-							"jellyfin" => new JellyfinFetcher(),
+							"jellyfin" => app.Services.GetRequiredService<JellyfinFetcher>(),
 							_ => null
 						};
 
@@ -114,7 +117,7 @@ public partial class Program
 						Fetcher? fetcherInstance = fetcher switch
 						{
 							"hyprland-mixxx" => new HyprlandMixxxFetcher(),
-							"jellyfin" => new JellyfinFetcher(),
+							"jellyfin" => app.Services.GetRequiredService<JellyfinFetcher>(),
 							_ => null
 						};
 
