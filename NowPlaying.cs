@@ -27,11 +27,10 @@ public sealed class MixxxNowPlaying : NowPlaying
 
 public sealed class JellyfinNowPlaying : NowPlaying
 {
-	static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
 
 	public JellyfinNowPlaying(string input)
 	{
-		var sessions = JsonSerializer.Deserialize<List<SessionDto>>(input, Options);
+		var sessions = JsonSerializer.Deserialize<List<SessionDto>>(input, JsonSerializerOptions.Web);
 
 		var nowPlaying = sessions?
 			.FirstOrDefault(s => s.NowPlayingItem != null)?
