@@ -72,13 +72,13 @@ public sealed class JellyfinFetcher(IMemoryCache cache, HttpClient http) : Fetch
 	{
 		return await _cache.GetOrCreateAsync("jellyfin:nowplaying", entry =>
 		{
-			entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+			entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(200);
 
-			return FetchFromJellyfinAsync();
+			return FetchFromJellyfinAsync(ct);
 		});
 	}
 
-	private async Task<NowPlaying?> FetchFromJellyfinAsync()
+	private async Task<NowPlaying?> FetchFromJellyfinAsync(CancellationToken ct)
 	{
 		if (string.IsNullOrWhiteSpace(_jellyfinUrl) || string.IsNullOrWhiteSpace(_jellyfinApiToken))
 			return null;
@@ -91,9 +91,9 @@ public sealed class JellyfinFetcher(IMemoryCache cache, HttpClient http) : Fetch
 			req.Headers.Add("Authorization", $@"Mediabrowser Token=""{_jellyfinApiToken}""");
 			req.Headers.UserAgent.ParseAdd("nowplaying_webapp");
 
-			using var resp = await _http.SendAsync(req, CancellationToken.None);
+			using var resp = await _http.SendAsync(req, ct);
 			resp.EnsureSuccessStatusCode();
-			var json = await resp.Content.ReadAsStringAsync(CancellationToken.None);
+			var json = await resp.Content.ReadAsStringAsync(ct);
 
 			return new JellyfinNowPlaying(json);
 		}
