@@ -32,6 +32,10 @@ h3 {
 	}
 }
 
+.sliide {
+	animation: slideIn 1000ms ease-in-out;
+}
+
 #card.htmx-added {
 	animation: slideIn 1000ms ease-in-out;
 }
