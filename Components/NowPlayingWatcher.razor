@@ -9,6 +9,9 @@
 	[Parameter]
 	public RenderFragment<NowPlaying?> ChildContent { get; set; } = default!;
 
+	[Parameter]
+	public string Thing { get; set; } = "heeeello";
+
 	private NowPlaying? _nowPlaying;
 	private (string? Artist, string? Title, string? Full)? _snapshot;
 	private CancellationTokenSource? _cts;

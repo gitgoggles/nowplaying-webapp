@@ -1,5 +1,5 @@
-@page "/"
-@rendermode InteractiveServer
+/*~*/ ~~~
+/*~~~~~~~*/ /*~~~~~~~~~~~~~*/
 
 <header>
 	<h1>What is <i>playing</i> right now?</h1>
@@ -10,7 +10,7 @@
 		Mixxx:
 		<NowPlayingWatcher FetcherName="hyprland-mixxx">
 			<ChildContent Context="nowPlaying">
-				<span>@nowPlaying?.Full</span>
+				<span>/*~~~~~~~~~~~~~*/</span>
 			</ChildContent>
 		</NowPlayingWatcher>
 	</li>
@@ -18,10 +18,11 @@
 		Jellyfin:
 		<NowPlayingWatcher FetcherName="jellyfin">
 			<ChildContent Context="nowPlaying">
-				<span>@nowPlaying?.Full</span>
+				<span>/*~~~~~~~~~~~~~*/</span>
 			</ChildContent>
 		</NowPlayingWatcher>
 	</li>
 </ul>
 
 <NowPlayingCard FetcherName="hyprland-mixxx" />
+

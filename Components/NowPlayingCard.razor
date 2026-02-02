@@ -1,22 +1,22 @@
-@code {
-	[Parameter]
-	public string FetcherName { get; set; } = "jellyfin";
-}
-
 <NowPlayingWatcher FetcherName="@FetcherName">
-	<ChildContent Context="nowPlaying">
-		@if (nowPlaying?.ArtistAndTitleAcquired == true)
+	<ChildContent>
+		@if (context?.ArtistAndTitleAcquired == true)
 		{
 			<div id="card">
-				<div id="title" class="sliide">@nowPlaying.Title</div>
-				<div id="artist" class="sliide">@nowPlaying.Artist</div>
+				<div id="title">@context.Title</div>
+				<div id="artist">@context.Artist</div>
 			</div>
 		}
-		else if (!string.IsNullOrWhiteSpace(nowPlaying?.Full))
+		else if (!string.IsNullOrWhiteSpace(context?.Full))
 		{
 			<div id="card">
-				<div id="title">@nowPlaying.Full</div>
+				<div id="title">@context.Full</div>
 			</div>
 		}
 	</ChildContent>
 </NowPlayingWatcher>
+
+@code {
+	[Parameter]
+	public string FetcherName { get; set; } = "jellyfin";
+}
