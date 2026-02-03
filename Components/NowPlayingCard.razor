@@ -1,22 +1,60 @@
-<NowPlayingWatcher FetcherName="@FetcherName">
-	<ChildContent>
-		@if (context?.ArtistAndTitleAcquired == true)
-		{
-			<div id="card">
-				<div id="title">@context.Title</div>
-				<div id="artist">@context.Artist</div>
-			</div>
-		}
-		else if (!string.IsNullOrWhiteSpace(context?.Full))
-		{
-			<div id="card">
-				<div id="title">@context.Full</div>
-			</div>
-		}
-	</ChildContent>
-</NowPlayingWatcher>
+@inject NowPlayingStore Store
+
+@if (_nowPlaying?.ArtistAndTitleAcquired == true)
+{
+	<div id="card">
+		<div id="title">@_nowPlaying.Title</div>
+		<div id="artist">@_nowPlaying.Artist</div>
+	</div>
+}
+else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
+{
+	<div id="card">
+		<div id="title">@_nowPlaying.Full</div>
+	</div>
+}
 
 @code {
 	[Parameter]
-	public string FetcherName { get; set; } = "jellyfin";
+	public string FetcherName { get; set; } = string.Empty;
+
+	private NowPlaying? _nowPlaying;
+	private (string? Artist, string? Title, string? Full)? _snapshot;
+	private CancellationTokenSource? _cts;
+
+	protected override void OnInitialized()
+	{
+		_cts = new CancellationTokenSource();
+		_ = PollAsync(_cts.Token);
+	}
+
+	private async Task PollAsync(CancellationToken ct)
+	{
+		using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
+
+		try
+		{
+			while (await timer.WaitForNextTickAsync(ct))
+			{
+				var next = Store.Get(FetcherName);
+				var nextSnapshot = (next?.Artist, next?.Title, next?.Full);
+
+				if (_snapshot != nextSnapshot)
+				{
+					_nowPlaying = next;
+					_snapshot = nextSnapshot;
+					await InvokeAsync(StateHasChanged);
+				}
+			}
+		}
+		catch (OperationCanceledException)
+		{
+		}
+	}
+
+	public void Dispose()
+	{
+		_cts?.Cancel();
+		_cts?.Dispose();
+	}
 }

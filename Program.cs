@@ -15,6 +15,8 @@ public partial class Program
 		builder.Services.AddHttpClient<JellyfinFetcher>(client =>
 			client.Timeout = TimeSpan.FromSeconds(5));
 		builder.Services.AddScoped<FetcherRegistry>();
+		builder.Services.AddSingleton<NowPlayingStore>();
+		builder.Services.AddHostedService<FetcherPollingService>();
 
 		var app = builder.Build();
 
