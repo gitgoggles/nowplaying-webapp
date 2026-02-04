@@ -1,30 +1,24 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-namespace nowplaying_webapp;
+namespace nowplaying_webapp.Services;
 
 public sealed class FetcherPollingService(
-	IServiceProvider serviceProvider,
+	IEnumerable<Fetcher> fetchers,
 	NowPlayingStore store,
 	ILogger<FetcherPollingService> logger)
 	: BackgroundService
 {
-	private readonly IServiceProvider _serviceProvider = serviceProvider;
+	private readonly IReadOnlyList<Fetcher> _fetcherList = [.. fetchers];
 	private readonly NowPlayingStore _store = store;
 	private readonly ILogger<FetcherPollingService> _logger = logger;
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		using var scope = _serviceProvider.CreateScope();
-		var registry = scope.ServiceProvider.GetRequiredService<FetcherRegistry>();
 		var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
 
 		try
 		{
 			while (await timer.WaitForNextTickAsync(stoppingToken))
 			{
-				foreach (var fetcher in registry.Fetchers)
+				foreach (var fetcher in _fetcherList)
 				{
 					try
 					{

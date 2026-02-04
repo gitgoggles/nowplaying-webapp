@@ -1,4 +1,5 @@
 using nowplaying_webapp.Components;
+using nowplaying_webapp.Services;
 
 namespace nowplaying_webapp;
 
@@ -11,11 +12,14 @@ public partial class Program
 		builder.Services.AddRazorComponents()
 			.AddInteractiveServerComponents();
 		builder.Services.AddMemoryCache();
-		builder.Services.AddSingleton<HyprlandMixxxFetcher>();
 		builder.Services.AddHttpClient<JellyfinFetcher>(client =>
 			client.Timeout = TimeSpan.FromSeconds(5));
-		builder.Services.AddScoped<FetcherRegistry>();
+
+
 		builder.Services.AddSingleton<NowPlayingStore>();
+		builder.Services.AddSingleton<Fetcher, HyprlandMixxxFetcher>();
+		builder.Services.AddSingleton<Fetcher, JellyfinFetcher>();
+
 		builder.Services.AddHostedService<FetcherPollingService>();
 
 		var app = builder.Build();

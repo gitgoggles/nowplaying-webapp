@@ -1,10 +1,15 @@
 using System.Collections.Concurrent;
 
-namespace nowplaying_webapp;
+namespace nowplaying_webapp.Services;
 
 public sealed class NowPlayingStore
 {
 	private readonly ConcurrentDictionary<string, NowPlaying?> _nowPlayingByFetcher = new();
+
+	public ICollection<string> ListFetchers()
+	{
+		return _nowPlayingByFetcher.Keys;
+	}
 
 	public NowPlaying? Get(string fetcherName)
 	{
