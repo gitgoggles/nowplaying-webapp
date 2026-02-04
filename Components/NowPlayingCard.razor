@@ -1,3 +1,5 @@
+@using nowplaying_webapp.Models
+@using nowplaying_webapp.Services
 @inject NowPlayingStore Store
 
 @if (_nowPlaying?.ArtistAndTitleAcquired == true)
@@ -16,7 +18,7 @@ else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 
 @code {
 	[Parameter]
-	public string FetcherName { get; set; } = string.Empty;
+	public string? FetcherName { get; set; } = null;
 
 	private NowPlaying? _nowPlaying;
 	private (string? Artist, string? Title, string? Full)? _snapshot;

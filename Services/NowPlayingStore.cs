@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using nowplaying_webapp.Models;
 
 namespace nowplaying_webapp.Services;
 
@@ -11,8 +12,13 @@ public sealed class NowPlayingStore
 		return _nowPlayingByFetcher.Keys;
 	}
 
-	public NowPlaying? Get(string fetcherName)
+	public NowPlaying? Get(string? fetcherName)
 	{
+		if (fetcherName is null)
+		{
+			return _nowPlayingByFetcher.FirstOrDefault(x => x.Value?.ArtistAndTitleAcquired == true).Value;
+		}
+
 		return _nowPlayingByFetcher.TryGetValue(fetcherName, out var current)
 			? current
 			: null;
@@ -20,6 +26,12 @@ public sealed class NowPlayingStore
 
 	public void Update(string fetcherName, NowPlaying? nowPlaying)
 	{
-		_nowPlayingByFetcher[fetcherName] = nowPlaying;
+		NowPlaying? existing = Get(fetcherName);
+		NowPlaying? next = nowPlaying;
+		if (existing?.Full != next?.Full)
+		{
+			Console.WriteLine($"{fetcherName}: {nowPlaying?.Full}");
+			_nowPlayingByFetcher[fetcherName] = nowPlaying;
+		}
 	}
 }

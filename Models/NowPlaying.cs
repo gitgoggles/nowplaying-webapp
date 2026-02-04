@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace nowplaying_webapp;
+namespace nowplaying_webapp.Models;
 
 // NowPlaying objects should parse the data
 // from the fetcher and return an object.
@@ -8,9 +8,24 @@ public abstract class NowPlaying
 {
 	public string? Artist { get; protected init; }
 	public string? Title { get; protected init; }
-	public string? Full { get; protected init; } = string.Empty;
+	// public string? Full { get; protected init; } = string.Empty;
+	public string? Full => (Artist, Title) switch
+	{
+		(null, null) => string.Empty,
+		(null, var t) => t,
+		(var a, null) => a,
+		(var a, var t) => $"{a} - {t}"
+	};
 	public bool ArtistAndTitleAcquired =>
 		!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(Title);
+}
+public sealed class DemoNowPlaying : NowPlaying
+{
+	public DemoNowPlaying(string artist, string title)
+	{
+		Artist = artist;
+		Title = title;
+	}
 }
 
 public sealed class MixxxNowPlaying : NowPlaying
@@ -20,7 +35,7 @@ public sealed class MixxxNowPlaying : NowPlaying
 		var split = input?.Split(" - ");
 		Artist = split?.Length == 2 ? split[0] : null;
 		Title = split?.Length == 2 ? split[1] : null;
-		Full = input;
+		// Full = input;
 	}
 
 }
@@ -41,13 +56,13 @@ public sealed class JellyfinNowPlaying : NowPlaying
 
 		Artist = artistName;
 		Title = name;
-		Full = (artistName, name) switch
-		{
-			(null, null) => string.Empty,
-			(null, var t) => t,
-			(var a, null) => a,
-			(var a, var t) => $"{a} - {t}"
-		};
+		// Full = (artistName, name) switch
+		// {
+		// 	(null, null) => string.Empty,
+		// 	(null, var t) => t,
+		// 	(var a, null) => a,
+		// 	(var a, var t) => $"{a} - {t}"
+		// };
 	}
 
 	public sealed record SessionDto

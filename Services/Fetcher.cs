@@ -1,8 +1,9 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
+using nowplaying_webapp.Models;
 
-namespace nowplaying_webapp;
+namespace nowplaying_webapp.Services;
 
 // The fetchers are for obtaining the data ONLY.
 // Parsing of the data is done by the NowPlaying class.
@@ -37,6 +38,25 @@ public abstract class Fetcher
 	}
 
 	public abstract Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default);
+}
+
+// don't forget to do the DI stuff
+public sealed class DemoFetcher : Fetcher
+{
+	public override string Name => "Demo";
+
+	public IEnumerable<DemoNowPlaying> fakeList = [
+		new ("Metal Licker", "Exit Sandman"),
+		new ("Nein Maiden", "Die Prophezeiung")
+	];
+
+	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
+	{
+		ct.ThrowIfCancellationRequested();
+		NowPlaying next = fakeList.First();
+		return next;
+
+	}
 }
 
 // this is only partial to satisfy the regex generation
