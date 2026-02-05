@@ -34,10 +34,9 @@ public sealed class NowPlayingStore
 			_nowPlayingByFetcher[fetcherName] = newValue;
 		}
 
-		if (changeDetected && (newValue is not null))
+		if (changeDetected && (newValue?.Full is not null))
 		{
 			Console.WriteLine($"{fetcherName}: {newValue.Full}");
-
 		}
 	}
 }
