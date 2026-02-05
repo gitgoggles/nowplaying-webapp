@@ -74,7 +74,7 @@ public sealed partial class HyprlandMixxxFetcher : Fetcher
 		var m = MixxxTitleRegex().Match(hyprctlOutput);
 		var parsed = m.Success ? m.Groups["t"].Value : null;
 
-		return new MixxxNowPlaying(parsed);
+		return string.IsNullOrWhiteSpace(parsed) ? null : new MixxxNowPlaying(parsed);
 	}
 }
 

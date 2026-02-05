@@ -8,7 +8,6 @@ public abstract class NowPlaying
 {
 	public string? Artist { get; protected init; }
 	public string? Title { get; protected init; }
-	// public string? Full { get; protected init; } = string.Empty;
 	public string? Full => (Artist, Title) switch
 	{
 		(null, null) => string.Empty,
@@ -35,7 +34,6 @@ public sealed class MixxxNowPlaying : NowPlaying
 		var split = input?.Split(" - ");
 		Artist = split?.Length == 2 ? split[0] : null;
 		Title = split?.Length == 2 ? split[1] : null;
-		// Full = input;
 	}
 
 }

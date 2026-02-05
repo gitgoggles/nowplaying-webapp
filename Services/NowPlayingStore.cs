@@ -28,10 +28,15 @@ public sealed class NowPlayingStore
 	{
 		NowPlaying? existing = Get(fetcherName);
 		NowPlaying? next = nowPlaying;
+
 		if (existing?.Full != next?.Full)
 		{
-			Console.WriteLine($"{fetcherName}: {nowPlaying?.Full}");
 			_nowPlayingByFetcher[fetcherName] = nowPlaying;
+		}
+		if ((existing?.Full != next?.Full) && (next?.Full is not null))
+		{
+			Console.WriteLine($"{fetcherName}: {nowPlaying?.Full}");
+
 		}
 	}
 }
