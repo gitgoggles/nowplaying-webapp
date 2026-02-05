@@ -8,9 +8,10 @@ public abstract class NowPlaying
 {
 	public string? Artist { get; protected init; }
 	public string? Title { get; protected init; }
+
 	public string? Full => (Artist, Title) switch
 	{
-		(null, null) => string.Empty,
+		(null, null) => null,
 		(null, var t) => t,
 		(var a, null) => a,
 		(var a, var t) => $"{a} - {t}"
@@ -54,13 +55,6 @@ public sealed class JellyfinNowPlaying : NowPlaying
 
 		Artist = artistName;
 		Title = name;
-		// Full = (artistName, name) switch
-		// {
-		// 	(null, null) => string.Empty,
-		// 	(null, var t) => t,
-		// 	(var a, null) => a,
-		// 	(var a, var t) => $"{a} - {t}"
-		// };
 	}
 
 	public sealed record SessionDto

@@ -24,18 +24,19 @@ public sealed class NowPlayingStore
 			: null;
 	}
 
-	public void Update(string fetcherName, NowPlaying? nowPlaying)
+	public void Update(string fetcherName, NowPlaying? newValue)
 	{
-		NowPlaying? existing = Get(fetcherName);
-		NowPlaying? next = nowPlaying;
+		NowPlaying? currentValue = Get(fetcherName);
+		bool changeDetected = currentValue?.Full != newValue?.Full;
 
-		if (existing?.Full != next?.Full)
+		if (changeDetected)
 		{
-			_nowPlayingByFetcher[fetcherName] = nowPlaying;
+			_nowPlayingByFetcher[fetcherName] = newValue;
 		}
-		if ((existing?.Full != next?.Full) && (next?.Full is not null))
+
+		if (changeDetected && (newValue is not null))
 		{
-			Console.WriteLine($"{fetcherName}: {nowPlaying?.Full}");
+			Console.WriteLine($"{fetcherName}: {newValue.Full}");
 
 		}
 	}

@@ -92,7 +92,7 @@ public sealed class JellyfinFetcher(IMemoryCache cache, HttpClient http) : Fetch
 	{
 		return await _cache.GetOrCreateAsync("jellyfin:nowplaying", entry =>
 		{
-			entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(200);
+			entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(250);
 
 			return FetchFromJellyfinAsync(ct);
 		});
