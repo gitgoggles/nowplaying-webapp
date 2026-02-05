@@ -14,14 +14,25 @@ public sealed class NowPlayingStore
 
 	public NowPlaying? Get(string? fetcherName)
 	{
-		if (fetcherName is null)
+		if (fetcherName is not null)
 		{
-			return _nowPlayingByFetcher.FirstOrDefault(x => x.Value?.ArtistAndTitleAcquired == true).Value;
+			return _nowPlayingByFetcher.TryGetValue(fetcherName, out var current)
+				? current
+				: null;
 		}
 
-		return _nowPlayingByFetcher.TryGetValue(fetcherName, out var current)
-			? current
-			: null;
+		var realFetcher = _nowPlayingByFetcher
+			.Where(x => x.Key != "Demo")
+			.Select(x => x.Value)
+			.FirstOrDefault(x => x?.ArtistAndTitleAcquired == true);
+
+		if (realFetcher is not null)
+		{
+			return realFetcher;
+		}
+
+		// only return demo data if there is no real data
+		return _nowPlayingByFetcher["Demo"];
 	}
 
 	public void Update(string fetcherName, NowPlaying? newValue)
