@@ -32,7 +32,7 @@ public sealed class MixxxNowPlaying : NowPlaying
 {
 	public MixxxNowPlaying(string? input)
 	{
-		var split = input?.Split(" - ");
+		var split = input?.Split(" - ", 2);
 		Artist = split?.Length == 2 ? split[0] : null;
 		Title = split?.Length == 2 ? split[1] : null;
 	}

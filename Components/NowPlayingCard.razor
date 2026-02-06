@@ -18,7 +18,7 @@ else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 
 @code {
 	[Parameter]
-	public string? FetcherName { get; set; } = null;
+	public string? FetcherName { get; set; }
 
 	private NowPlaying? _nowPlaying;
 	private (string? Artist, string? Title, string? Full)? _snapshot;

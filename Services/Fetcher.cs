@@ -40,12 +40,11 @@ public abstract class Fetcher
 	public abstract Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default);
 }
 
-// don't forget to do the DI stuff
 public sealed class DemoFetcher : Fetcher
 {
 	public override string Name => "Demo";
 
-	public IEnumerable<DemoNowPlaying> fakeList = [
+	private static readonly IReadOnlyList<DemoNowPlaying> fakeList = [
 		new ("Metal Licker", "Exit Sandman"),
 		new ("Nein Maiden", "Die Prophezeiung")
 	];
@@ -53,7 +52,7 @@ public sealed class DemoFetcher : Fetcher
 	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
 	{
 		ct.ThrowIfCancellationRequested();
-		NowPlaying next = fakeList.First();
+		NowPlaying next = fakeList[0];
 		return next;
 
 	}
@@ -103,7 +102,7 @@ public sealed class JellyfinFetcher(IMemoryCache cache, HttpClient http) : Fetch
 		if (string.IsNullOrWhiteSpace(_jellyfinUrl) || string.IsNullOrWhiteSpace(_jellyfinApiToken))
 			return null;
 
-		var url = $"{_jellyfinUrl.TrimEnd("/")}/Sessions?activeWithinSeconds=60";
+		var url = $"{_jellyfinUrl.TrimEnd('/')}/Sessions?activeWithinSeconds=60";
 
 		try
 		{

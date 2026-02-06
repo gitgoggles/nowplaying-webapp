@@ -7,10 +7,7 @@ public sealed class NowPlayingStore
 {
 	private readonly ConcurrentDictionary<string, NowPlaying?> _nowPlayingByFetcher = new();
 
-	public ICollection<string> ListFetchers()
-	{
-		return _nowPlayingByFetcher.Keys;
-	}
+	public ICollection<string> ListFetchers() => _nowPlayingByFetcher.Keys;
 
 	public NowPlaying? Get(string? fetcherName)
 	{
@@ -32,12 +29,12 @@ public sealed class NowPlayingStore
 		}
 
 		// only return demo data if there is no real data
-		return _nowPlayingByFetcher["Demo"];
+		return _nowPlayingByFetcher.TryGetValue("Demo", out var value) ? value : null;
 	}
 
 	public void Update(string fetcherName, NowPlaying? newValue)
 	{
-		NowPlaying? currentValue = Get(fetcherName);
+		NowPlaying? currentValue = _nowPlayingByFetcher.TryGetValue(fetcherName, out var value) ? value : null;
 		bool changeDetected = currentValue?.Full != newValue?.Full;
 
 		if (changeDetected)
