@@ -13,28 +13,22 @@ public sealed class NowPlayingStore
 	{
 		if (fetcherName is not null)
 		{
-			return _nowPlayingByFetcher.TryGetValue(fetcherName, out var current)
-				? current
-				: null;
+			return _nowPlayingByFetcher.GetValueOrDefault(fetcherName);
 		}
 
 		var realFetcher = _nowPlayingByFetcher
 			.Where(x => x.Key != "Demo")
 			.Select(x => x.Value)
-			.FirstOrDefault(x => x?.ArtistAndTitleAcquired == true);
+			.FirstOrDefault(x => x?.Full is not null);
 
-		if (realFetcher is not null)
-		{
-			return realFetcher;
-		}
-
-		// only return demo data if there is no real data
-		return _nowPlayingByFetcher.TryGetValue("Demo", out var value) ? value : null;
+		return realFetcher ??
+			   // only return demo data if there is no real data
+			   _nowPlayingByFetcher.GetValueOrDefault("Demo");
 	}
 
 	public void Update(string fetcherName, NowPlaying? newValue)
 	{
-		NowPlaying? currentValue = _nowPlayingByFetcher.TryGetValue(fetcherName, out var value) ? value : null;
+		NowPlaying? currentValue = _nowPlayingByFetcher.GetValueOrDefault(fetcherName);
 		bool changeDetected = currentValue?.Full != newValue?.Full;
 
 		if (changeDetected)

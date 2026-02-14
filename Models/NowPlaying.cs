@@ -32,9 +32,19 @@ public sealed class MixxxNowPlaying : NowPlaying
 {
 	public MixxxNowPlaying(string? input)
 	{
-		var split = input?.Split(" - ", 2);
-		Artist = split?.Length == 2 ? split[0] : null;
-		Title = split?.Length == 2 ? split[1] : null;
+		// e.g. input: Iron Maiden - Run to the Hills
+		// e.g. input: Bad Company
+		if (input?.Length > 0 && !input.Contains('-'))
+		{
+			Artist = null;
+			Title = input;
+		}
+		else
+		{
+			var split = input?.Split(" - ", 2);
+			Artist = split?.Length == 2 ? split[0] : null;
+			Title = split?.Length == 2 ? split[1] : null;
+		}
 	}
 
 }
@@ -57,15 +67,11 @@ public sealed class JellyfinNowPlaying : NowPlaying
 		Title = name;
 	}
 
-	public sealed record SessionDto
-	{
-		public NowPlayingItemDto? NowPlayingItem { get; init; }
-	}
+	sealed record SessionDto(NowPlayingItemDto? NowPlayingItem);
 
-	public sealed record NowPlayingItemDto
-	{
-		public string? Name { get; init; }
-		public string? Album { get; init; }
-		public string[]? Artists { get; init; }
-	}
+	sealed record NowPlayingItemDto(
+			string? Name,
+			string? Album,
+			string[]? Artists
+			);
 }

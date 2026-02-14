@@ -7,8 +7,6 @@ public sealed class FetcherPollingService(
 	: BackgroundService
 {
 	private readonly IReadOnlyList<Fetcher> _fetcherList = [.. fetchers];
-	private readonly NowPlayingStore _store = store;
-	private readonly ILogger<FetcherPollingService> _logger = logger;
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
@@ -23,7 +21,7 @@ public sealed class FetcherPollingService(
 					try
 					{
 						var next = await fetcher.GetNowPlayingAsync(stoppingToken);
-						_store.Update(fetcher.Name, next);
+						store.Update(fetcher.Name, next);
 					}
 					catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
 					{
@@ -31,7 +29,10 @@ public sealed class FetcherPollingService(
 					}
 					catch (Exception ex)
 					{
-						_logger.LogDebug(ex, "Failed polling fetcher {FetcherName}", fetcher.Name);
+						if (logger.IsEnabled(LogLevel.Debug))
+						{
+							logger.LogDebug(ex, "Failed polling fetcher {FetcherName}", fetcher.Name);
+						}
 					}
 				}
 			}

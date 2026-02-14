@@ -11,7 +11,7 @@ public abstract class Fetcher
 {
 	public abstract string Name { get; }
 
-	protected async Task<string> RunProcess(string file, string args, CancellationToken ct)
+	protected static async Task<string> RunProcess(string file, string args, CancellationToken ct)
 	{
 		var psi = new ProcessStartInfo(file, args)
 		{
