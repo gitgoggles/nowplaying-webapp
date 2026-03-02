@@ -4,7 +4,7 @@
 
 @if (_nowPlaying?.ArtistAndTitleAcquired == true)
 {
-	<div id="card">
+	<div id="card" @key="_nowPlaying">
 		<div id="title">@_nowPlaying.Title</div>
 		<div id="artist">@_nowPlaying.Artist</div>
 	</div>
