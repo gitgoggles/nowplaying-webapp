@@ -4,17 +4,18 @@
 
 @if (_nowPlaying?.ArtistAndTitleAcquired == true)
 {
-	<div id="card" @key="_nowPlaying">
+	<div id="card" @key="_nowPlaying" class="@(_isExiting ? "exiting" : null)">
 		<div id="title">@_nowPlaying.Title</div>
 		<div id="artist">@_nowPlaying.Artist</div>
 	</div>
 }
 else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 {
-	<div id="card">
+	<div id="card" @key="_nowPlaying" class="@(_isExiting ? "exiting" : null)">
 		<div id="title">@_nowPlaying.Full</div>
 	</div>
 }
+
 
 @code {
 	[Parameter]
@@ -23,6 +24,8 @@ else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 	private NowPlaying? _nowPlaying;
 	private (string? Artist, string? Title, string? Full)? _snapshot;
 	private CancellationTokenSource? _cts;
+
+	private bool _isExiting = false;
 
 	protected override void OnInitialized()
 	{
@@ -43,9 +46,21 @@ else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 
 				if (_snapshot != nextSnapshot)
 				{
-					_nowPlaying = next;
-					_snapshot = nextSnapshot;
-					await InvokeAsync(StateHasChanged);
+					await InvokeAsync(() =>
+					{
+						_isExiting = true;
+						StateHasChanged();
+					});
+
+					await Task.Delay(1000);
+
+					await InvokeAsync(() =>
+					{
+						_nowPlaying = next;
+						_snapshot = nextSnapshot;
+						_isExiting = false;
+						StateHasChanged();
+					});
 				}
 			}
 		}
