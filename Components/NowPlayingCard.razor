@@ -1,5 +1,6 @@
 @using nowplaying_webapp.Models
 @using nowplaying_webapp.Services
+@implements IDisposable
 @inject NowPlayingStore Store
 
 @if (_nowPlaying?.ArtistAndTitleAcquired == true)
@@ -22,56 +23,39 @@ else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 	public string? FetcherName { get; set; }
 
 	private NowPlaying? _nowPlaying;
-	private (string? Artist, string? Title, string? Full)? _snapshot;
-	private CancellationTokenSource? _cts;
-
 	private bool _isExiting = false;
 
 	protected override void OnInitialized()
 	{
-		_cts = new CancellationTokenSource();
-		_ = PollAsync(_cts.Token);
+		_nowPlaying = Store.Get(FetcherName);
+		Store.StoreUpdated += OnStoreUpdated;
 	}
 
-	private async Task PollAsync(CancellationToken ct)
+	private void OnStoreUpdated(string fetcherName, NowPlaying? nowPlaying)
 	{
-		using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
+		_ = UpdateCardData(fetcherName, nowPlaying);
+	}
 
-		try
+	private async Task UpdateCardData(string fetcherName, NowPlaying? nowPlaying)
+	{
+		await InvokeAsync(() =>
 		{
-			while (await timer.WaitForNextTickAsync(ct))
-			{
-				var next = Store.Get(FetcherName);
-				var nextSnapshot = (next?.Artist, next?.Title, next?.Full);
+			_isExiting = true;
+			StateHasChanged();
+		});
 
-				if (_snapshot != nextSnapshot)
-				{
-					await InvokeAsync(() =>
-					{
-						_isExiting = true;
-						StateHasChanged();
-					});
+		await Task.Delay(1000);
 
-					await Task.Delay(1000);
-
-					await InvokeAsync(() =>
-					{
-						_nowPlaying = next;
-						_snapshot = nextSnapshot;
-						_isExiting = false;
-						StateHasChanged();
-					});
-				}
-			}
-		}
-		catch (OperationCanceledException)
+		await InvokeAsync(() =>
 		{
-		}
+			_nowPlaying = nowPlaying;
+			_isExiting = false;
+			StateHasChanged();
+		});
 	}
 
 	public void Dispose()
 	{
-		_cts?.Cancel();
-		_cts?.Dispose();
+		Store.StoreUpdated -= OnStoreUpdated;
 	}
 }

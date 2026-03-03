@@ -7,7 +7,8 @@ public sealed class NowPlayingStore
 {
 	private readonly ConcurrentDictionary<string, NowPlaying?> _nowPlayingByFetcher = new();
 
-	public ICollection<string> ListFetchers() => _nowPlayingByFetcher.Keys;
+	// public ICollection<string> ListFetchers() => _nowPlayingByFetcher.Keys;
+	public event Action<string, NowPlaying?>? StoreUpdated;
 
 	public NowPlaying? Get(string? fetcherName)
 	{
@@ -34,6 +35,7 @@ public sealed class NowPlayingStore
 		if (changeDetected)
 		{
 			_nowPlayingByFetcher[fetcherName] = newValue;
+			StoreUpdated?.Invoke(fetcherName, newValue);
 		}
 
 		if (changeDetected && (newValue?.Full is not null))
