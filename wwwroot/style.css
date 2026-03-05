@@ -13,14 +13,14 @@ h3 {
 	line-height: 1.2;
 }
 
-#card {
+.card {
 	font-family: "Permanent Marker", cursive;
 	font-weight: 400;
 	font-style: normal;
 	animation: slideIn 1000ms ease-in-out;
 }
 
-#card.exiting {
+.card.exiting {
 	animation: slideOut 1000ms ease-in-out;
 }
 
