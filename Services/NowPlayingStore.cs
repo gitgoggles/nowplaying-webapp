@@ -6,8 +6,12 @@ namespace nowplaying_webapp.Services;
 public sealed class NowPlayingStore
 {
 	private readonly ConcurrentDictionary<string, NowPlaying?> _nowPlayingByFetcher = new();
+	private NowPlaying? FirstRealFetcher =>
+		_nowPlayingByFetcher
+			.FirstOrDefault(x => x.Key != "Demo" && x.Value?.Full is not null)
+			.Value;
+	private bool RealFetcherInStore => FirstRealFetcher is not null;
 
-	// public ICollection<string> ListFetchers() => _nowPlayingByFetcher.Keys;
 	public event Action<string, NowPlaying?>? StoreUpdated;
 
 	public NowPlaying? Get(string? fetcherName)
@@ -17,12 +21,7 @@ public sealed class NowPlayingStore
 			return _nowPlayingByFetcher.GetValueOrDefault(fetcherName);
 		}
 
-		var realFetcher = _nowPlayingByFetcher
-			.Where(x => x.Key != "Demo")
-			.Select(x => x.Value)
-			.FirstOrDefault(x => x?.Full is not null);
-
-		return realFetcher ??
+		return FirstRealFetcher ??
 			   // only return demo data if there is no real data
 			   _nowPlayingByFetcher.GetValueOrDefault("Demo");
 	}
@@ -32,15 +31,26 @@ public sealed class NowPlayingStore
 		NowPlaying? currentValue = _nowPlayingByFetcher.GetValueOrDefault(fetcherName);
 		bool changeDetected = currentValue?.Full != newValue?.Full;
 
-		if (changeDetected)
+		if (!changeDetected)
+		{
+			return;
+		}
+
+		// real data
+		if (fetcherName != "Demo")
 		{
 			_nowPlayingByFetcher[fetcherName] = newValue;
 			StoreUpdated?.Invoke(fetcherName, newValue);
+			return;
 		}
 
-		if (changeDetected && (newValue?.Full is not null))
+		// demo data
+		if (fetcherName == "Demo" && !RealFetcherInStore)
 		{
-			Console.WriteLine($"{fetcherName}: {newValue.Full}");
+			_nowPlayingByFetcher[fetcherName] = newValue;
+			StoreUpdated?.Invoke(fetcherName, newValue);
+			return;
 		}
+
 	}
 }

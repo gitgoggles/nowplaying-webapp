@@ -48,7 +48,7 @@ else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
 
 		await InvokeAsync(() =>
 		{
-			_nowPlaying = nowPlaying;
+			_nowPlaying = Store.Get(FetcherName);
 			_isExiting = false;
 			StateHasChanged();
 		});

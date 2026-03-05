@@ -43,6 +43,9 @@ public abstract class Fetcher
 public sealed class DemoFetcher : Fetcher
 {
 	public override string Name => "Demo";
+	private const int _swapThreshold = 16;
+	private int _hitCount = 0;
+	private int _index = 0;
 
 	private static readonly IReadOnlyList<DemoNowPlaying> fakeList = [
 		new ("Metal Licker", "Exit Sandman"),
@@ -52,8 +55,15 @@ public sealed class DemoFetcher : Fetcher
 	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
 	{
 		ct.ThrowIfCancellationRequested();
-		NowPlaying next = fakeList[0];
-		return next;
+
+		// Cycle through demo data when _swapThreshold reached
+		if (_hitCount == _swapThreshold)
+		{
+			_index = (_index + 1) % fakeList.Count;
+			_hitCount = 0;
+		}
+		_hitCount++;
+		return fakeList[_index];
 
 	}
 }
