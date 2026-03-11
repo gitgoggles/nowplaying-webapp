@@ -1,3 +1,48 @@
 @page "/config"
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.EntityFrameworkCore
+@using nowplaying_webapp.Models
+@rendermode InteractiveServer
+@inject nowplaying_webapp.Models.AppDbContext Db
 
-<div>hello</div>
+<h1>Config</h1>
+<EditForm Model="@_Config" OnSubmit="SaveAsync">
+	<label>Jellyfin Url</label>
+	<InputText @bind-Value="_Config.JellyfinUrl" />
+	<label>Jellyfin API Key</label>
+	<InputText @bind-Value="_Config.JellyfinApi" />
+	<label>Enabled</label>
+	<InputCheckbox @bind-Value="_Config.JellyfinEnabled" />
+	<button type="submit">Save</button>
+</EditForm>
+
+<EditForm Model="@_Config" OnSubmit="SaveAsync">
+	<label>Plex Url</label>
+	<InputText @bind-Value="_Config.PlexUrl" />
+	<label>Plex API Key</label>
+	<InputText @bind-Value="_Config.PlexApi" />
+	<label>Enabled</label>
+	<InputCheckbox @bind-Value="_Config.PlexEnabled" />
+	<button type="submit">Save</button>
+</EditForm>
+
+@code {
+	public required ConfigModel _Config;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var existing_config = await Db.Configs.FirstOrDefaultAsync();
+		_Config = existing_config ?? new ConfigModel();
+
+		if (existing_config is null)
+		{
+			Db.Configs.Add(_Config);
+			await Db.SaveChangesAsync();
+		}
+	}
+
+	private async Task SaveAsync()
+	{
+		await Db.SaveChangesAsync();
+	}
+}
