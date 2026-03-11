@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using nowplaying_webapp.Components;
+using nowplaying_webapp.Models;
 using nowplaying_webapp.Services;
 
 namespace nowplaying_webapp;
@@ -22,8 +24,15 @@ public partial class Program
 		builder.Services.AddSingleton<Fetcher, DemoFetcher>();
 
 		builder.Services.AddHostedService<FetcherPollingService>();
+		builder.Services.AddDbContext<AppDbContext>();
 
 		var app = builder.Build();
+
+		using (var scope = app.Services.CreateScope())
+		{
+			var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+			db.Database.Migrate();
+		}
 
 		app.UseStaticFiles();
 		app.UseAntiforgery();
