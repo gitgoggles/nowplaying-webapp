@@ -6,24 +6,30 @@
 @inject nowplaying_webapp.Models.AppDbContext Db
 
 <h1>Config</h1>
-<EditForm Model="@_Config" OnSubmit="SaveAsync">
-	<label>Jellyfin Url</label>
-	<InputText @bind-Value="_Config.JellyfinUrl" />
-	<label>Jellyfin API Key</label>
-	<InputText @bind-Value="_Config.JellyfinApi" />
-	<label>Enabled</label>
-	<InputCheckbox @bind-Value="_Config.JellyfinEnabled" />
-	<button type="submit">Save</button>
-</EditForm>
+<EditForm Model="@_Config" OnValidSubmit="SaveAsync">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 
-<EditForm Model="@_Config" OnSubmit="SaveAsync">
-	<label>Plex Url</label>
-	<InputText @bind-Value="_Config.PlexUrl" />
-	<label>Plex API Key</label>
-	<InputText @bind-Value="_Config.PlexApi" />
-	<label>Enabled</label>
-	<InputCheckbox @bind-Value="_Config.PlexEnabled" />
-	<button type="submit">Save</button>
+	<div class="config-section">
+		<label>Jellyfin Url</label>
+		<InputText @bind-Value="_Config.JellyfinUrl" />
+		<label>Jellyfin API Key</label>
+		<InputText @bind-Value="_Config.JellyfinApi" />
+		<label>Enabled</label>
+		<InputCheckbox @bind-Value="_Config.JellyfinEnabled" />
+	</div>
+
+	<div class="config-section">
+		<label>Plex Url</label>
+		<InputText @bind-Value="_Config.PlexUrl" />
+		<label>Plex API Key</label>
+		<InputText @bind-Value="_Config.PlexApi" />
+		<label>Enabled</label>
+		<InputCheckbox @bind-Value="_Config.PlexEnabled" />
+	</div>
+	<div>
+		<button type="submit">Save</button>
+	</div>
 </EditForm>
 
 @code {

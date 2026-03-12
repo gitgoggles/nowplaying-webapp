@@ -35,11 +35,3 @@ public class ConfigModel
 	public string PlexApi { get; set; } = string.Empty;
 	public bool PlexEnabled { get; set; } = false;
 }
-
-// public class Config
-// {
-// 	public int Id { get; set; }
-// 	public string Name { get; set; }
-// 	public string Value { get; set; }
-// }
-
