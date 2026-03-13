@@ -13,6 +13,10 @@ h3 {
 	line-height: 1.2;
 }
 
+hr {
+	opacity: 0.1;
+}
+
 .card {
 	font-family: "Permanent Marker", cursive;
 	font-weight: 400;
@@ -54,3 +58,17 @@ h3 {
 #artist {
 	font-size: 1rem;
 }
+
+.config-section {
+	display: flex;
+	flex-direction: column;
+}
+.config-section-inline {
+	flex-direction: row;
+}
+.config-form button {
+	float: right;
+}
+/* .div.button-right { */
+/* 	text-align: right; */
+/* } */

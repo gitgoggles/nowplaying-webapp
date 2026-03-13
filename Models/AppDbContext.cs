@@ -28,6 +28,7 @@ public class AppDbContext : DbContext
 public class ConfigModel
 {
 	public int Id { get; set; }
+	public bool DemoDataEnabled { get; set; } = false;
 	public string JellyfinUrl { get; set; } = string.Empty;
 	public string JellyfinApi { get; set; } = string.Empty;
 	public bool JellyfinEnabled { get; set; } = false;
