@@ -1,12 +1,13 @@
 @page "/"
 @inject nowplaying_webapp.Services.ConfigStore config
 @rendermode InteractiveServer
+@implements IDisposable
 
 <header>
 	<h1>What is <i>playing</i> right now?</h1>
 	<aside>Hopefully I can populate this with the currently playing song from Plex, Jellyfin or Mixxx.</aside>
 </header>
-<a href="/config">Config2</a>
+<a href="/config">Config</a>
 <div>is demo data enabled? @config.Store?.DemoDataEnabled </div>
 
 <NowPlayingCard />
@@ -20,7 +21,7 @@
 	{
 		_ = InvokeAsync(StateHasChanged);
 	}
-	private void Dispose()
+	public void Dispose()
 	{
 		config.ConfigUpdated -= OnConfigChanged;
 	}

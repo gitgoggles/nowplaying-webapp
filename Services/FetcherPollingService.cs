@@ -3,8 +3,7 @@ namespace nowplaying_webapp.Services;
 public sealed class FetcherPollingService(
 	IEnumerable<Fetcher> fetchers,
 	NowPlayingStore store,
-	ILogger<FetcherPollingService> logger,
-	ConfigStore config)
+	ILogger<FetcherPollingService> logger)
 	: BackgroundService
 {
 	private readonly IReadOnlyList<Fetcher> _fetcherList = [.. fetchers];
@@ -17,10 +16,11 @@ public sealed class FetcherPollingService(
 		{
 			foreach (var fetcher in _fetcherList)
 			{
-				// if ((bool)!config.Store?.DemoDataEnabled)
-				// {
-				// 	continue;
-				// }
+				if (!fetcher.Enabled)
+				{
+					store.Update(fetcher.Name, null);
+					continue;
+				}
 				try
 				{
 					var next = await fetcher.GetNowPlayingAsync(stoppingToken);

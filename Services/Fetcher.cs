@@ -10,6 +10,7 @@ namespace nowplaying_webapp.Services;
 public abstract class Fetcher
 {
 	public abstract string Name { get; }
+	public abstract bool Enabled { get; }
 
 	protected static async Task<string> RunProcess(string file, string args, CancellationToken ct)
 	{
@@ -40,12 +41,13 @@ public abstract class Fetcher
 	public abstract Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default);
 }
 
-public sealed class DemoFetcher : Fetcher
+public sealed class DemoFetcher(ConfigStore config) : Fetcher
 {
 	public override string Name => "Demo";
 	private const int _swapThreshold = 16;
 	private int _hitCount = 0;
 	private int _index = 0;
+	public override bool Enabled => config.Store?.DemoDataEnabled ?? false;
 
 	private static readonly IReadOnlyList<DemoNowPlaying> fakeList = [
 		new ("Metal Licker", "Exit Sandman"),
@@ -69,9 +71,10 @@ public sealed class DemoFetcher : Fetcher
 }
 
 // this is only partial to satisfy the regex generation
-public sealed partial class HyprlandMixxxFetcher : Fetcher
+public sealed partial class HyprlandMixxxFetcher(ConfigStore config) : Fetcher
 {
 	public override string Name => "hyprland-mixxx";
+	public override bool Enabled => config.Store?.DemoDataEnabled ?? false;
 
 	[GeneratedRegex(@"title:\s*(?<t>.*?)\s*\|\s*Mixxx\s*$", RegexOptions.Multiline)]
 	private static partial Regex MixxxTitleRegex();
@@ -87,12 +90,13 @@ public sealed partial class HyprlandMixxxFetcher : Fetcher
 	}
 }
 
-public sealed class JellyfinFetcher(IMemoryCache cache, HttpClient http) : Fetcher
+public sealed class JellyfinFetcher(ConfigStore config, IMemoryCache cache, HttpClient http) : Fetcher
 {
 	private readonly IMemoryCache _cache = cache;
 	private readonly HttpClient _http = http;
 
 	public override string Name => "jellyfin";
+	public override bool Enabled => config.Store?.JellyfinEnabled ?? false;
 
 	private readonly string? _jellyfinUrl = Environment.GetEnvironmentVariable("JELLY_URL");
 	private readonly string? _jellyfinApiToken = Environment.GetEnvironmentVariable("JELLY_API");
