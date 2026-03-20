@@ -4,6 +4,7 @@
 @using nowplaying_webapp.Models
 @rendermode InteractiveServer
 @inject nowplaying_webapp.Models.AppDbContext Db
+@inject nowplaying_webapp.Services.ConfigStore config
 
 <h1>Config</h1>
 <EditForm class="config-form" Model="@_Config" OnValidSubmit="SaveAsync">
@@ -68,5 +69,6 @@
 	private async Task SaveAsync()
 	{
 		await Db.SaveChangesAsync();
+		await config.RefreshAsync();
 	}
 }

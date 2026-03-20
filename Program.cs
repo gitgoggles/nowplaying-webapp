@@ -19,6 +19,7 @@ public partial class Program
 
 
 		builder.Services.AddSingleton<NowPlayingStore>();
+		builder.Services.AddSingleton<ConfigStore>();
 		builder.Services.AddSingleton<Fetcher, HyprlandMixxxFetcher>();
 		builder.Services.AddSingleton<Fetcher, JellyfinFetcher>();
 		builder.Services.AddSingleton<Fetcher, DemoFetcher>();
@@ -33,6 +34,9 @@ public partial class Program
 			var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 			db.Database.Migrate();
 		}
+
+		var configStore = app.Services.GetRequiredService<ConfigStore>();
+		configStore.RefreshAsync().GetAwaiter().GetResult();
 
 		app.UseStaticFiles();
 		app.UseAntiforgery();
