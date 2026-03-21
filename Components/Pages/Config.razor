@@ -12,35 +12,41 @@
 	<ValidationSummary />
 
 	<div class="config-section">
+		<h2>Demo Data</h2>
 		<div class="config-section-inline">
 			<label>Demo Data Enabled</label>
 			<InputCheckbox @bind-Value="_Config.DemoDataEnabled" />
+			<NowPlayingCard FetcherName="Demo" Variant="Full" />
 		</div>
 	</div>
 
 	<hr>
 
 	<div class="config-section">
-		<label>Jellyfin URL</label>
+		<h2>Jellyfin</h2>
+		<label>URL</label>
 		<InputText @bind-Value="_Config.JellyfinUrl" />
-		<label>Jellyfin API Key</label>
+		<label>API Key</label>
 		<InputText type="password" @bind-Value="_Config.JellyfinApi" />
 		<div class="config-section-inline">
-			<label>Jellyfin Enabled</label>
+			<label>Enabled</label>
 			<InputCheckbox @bind-Value="_Config.JellyfinEnabled" />
+			<NowPlayingCard FetcherName="jellyfin" Variant="Full" />
 		</div>
 	</div>
 
 	<hr>
 
 	<div class="config-section">
-		<label>Plex URL</label>
+		<h2>Plex</h2>
+		<label>URL</label>
 		<InputText @bind-Value="_Config.PlexUrl" />
-		<label>Plex API Key</label>
+		<label>API Key</label>
 		<InputText type="password" @bind-Value="_Config.PlexApi" />
 		<div class="config-section-inline">
-			<label>Plex Enabled</label>
+			<label>Enabled</label>
 			<InputCheckbox @bind-Value="_Config.PlexEnabled" />
+			<NowPlayingCard FetcherName="Plex" Variant="Full" />
 		</div>
 	</div>
 
