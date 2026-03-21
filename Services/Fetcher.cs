@@ -98,8 +98,8 @@ public sealed class JellyfinFetcher(ConfigStore config, IMemoryCache cache, Http
 	public override string Name => "jellyfin";
 	public override bool Enabled => config.Store?.JellyfinEnabled ?? false;
 
-	private readonly string? _jellyfinUrl = Environment.GetEnvironmentVariable("JELLY_URL");
-	private readonly string? _jellyfinApiToken = Environment.GetEnvironmentVariable("JELLY_API");
+	private string? _jellyfinUrl = Environment.GetEnvironmentVariable("JELLY_URL");
+	private string? _jellyfinApiToken = Environment.GetEnvironmentVariable("JELLY_API");
 
 	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct = default)
 	{
@@ -114,7 +114,11 @@ public sealed class JellyfinFetcher(ConfigStore config, IMemoryCache cache, Http
 	private async Task<NowPlaying?> FetchFromJellyfinAsync(CancellationToken ct)
 	{
 		if (string.IsNullOrWhiteSpace(_jellyfinUrl) || string.IsNullOrWhiteSpace(_jellyfinApiToken))
+		{
+			_jellyfinUrl = config.Store?.JellyfinUrl;
+			_jellyfinApiToken = config.Store?.JellyfinApi;
 			return null;
+		}
 
 		var url = $"{_jellyfinUrl.TrimEnd('/')}/Sessions?activeWithinSeconds=60";
 
