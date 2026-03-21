@@ -17,14 +17,14 @@ hr {
 	opacity: 0.1;
 }
 
-.card {
+.animated-card div {
 	font-family: "Permanent Marker", cursive;
 	font-weight: 400;
 	font-style: normal;
 	animation: slideIn 1000ms ease-in-out;
 }
 
-.card.exiting {
+.animated-card .exiting div {
 	animation: slideOut 1000ms ease-in-out;
 }
 
@@ -51,11 +51,11 @@ hr {
 	}
 }
 
-#title {
+.animated-card div#title {
 	font-size: 2rem;
 }
 
-#artist {
+.animated-card div#artist {
 	font-size: 1rem;
 }
 
@@ -69,6 +69,3 @@ hr {
 .config-form button {
 	float: right;
 }
-/* .div.button-right { */
-/* 	text-align: right; */
-/* } */

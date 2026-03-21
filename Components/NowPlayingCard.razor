@@ -3,24 +3,52 @@
 @implements IDisposable
 @inject NowPlayingStore Store
 
-@if (_nowPlaying?.ArtistAndTitleAcquired == true)
+@switch (Variant)
 {
-	<div @key="_nowPlaying" class="card @(_isExiting ? "exiting" : null)">
-		<div id="title">@_nowPlaying.Title</div>
-		<div id="artist">@_nowPlaying.Artist</div>
-	</div>
-}
-else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
-{
-	<div @key="_nowPlaying" class="card @(_isExiting ? "exiting" : null)">
-		<div id="title">@_nowPlaying.Full</div>
-	</div>
-}
+	case "Full":
+		<div @key="_nowPlaying" class="@ExtraClass @(_isExiting ? "exiting" : null)">
+			<div id="full">@_nowPlaying?.Full</div>
+		</div>
+		break;
 
+	case "Artist":
+		<div @key="_nowPlaying" class="@ExtraClass @(_isExiting ? "exiting" : null)">
+			<div id="artist">@_nowPlaying?.Artist</div>
+		</div>
+		break;
+
+	case "Title":
+		<div @key="_nowPlaying" class="@ExtraClass @(_isExiting ? "exiting" : null)">
+			<div id="title">@_nowPlaying?.Title</div>
+		</div>
+		break;
+
+	default:
+		@if (_nowPlaying?.ArtistAndTitleAcquired == true)
+		{
+			<div @key="_nowPlaying" class="@ExtraClass @(_isExiting ? "exiting" : null)">
+				<div id="title">@_nowPlaying.Title</div>
+				<div id="artist">@_nowPlaying.Artist</div>
+			</div>
+		}
+		else if (!string.IsNullOrWhiteSpace(_nowPlaying?.Full))
+		{
+			<div @key="_nowPlaying" class="@ExtraClass @(_isExiting ? "exiting" : null)">
+				<div id="title">@_nowPlaying.Full</div>
+			</div>
+		}
+		break;
+}
 
 @code {
 	[Parameter]
 	public string? FetcherName { get; set; }
+
+	[Parameter]
+	public string? Variant { get; set; }
+
+	[Parameter]
+	public string? ExtraClass { get; set; }
 
 	private NowPlaying? _nowPlaying;
 	private bool _isExiting = false;
