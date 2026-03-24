@@ -17,14 +17,14 @@ hr {
 	opacity: 0.1;
 }
 
-.animated-card div {
+.animated-card {
 	font-family: "Permanent Marker", cursive;
 	font-weight: 400;
 	font-style: normal;
 	animation: slideIn 1000ms ease-in-out;
 }
 
-.animated-card .exiting div {
+.animated-card.exiting {
 	animation: slideOut 1000ms ease-in-out;
 }
 
