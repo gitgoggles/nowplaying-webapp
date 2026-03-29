@@ -74,7 +74,7 @@ public sealed class DemoFetcher(ConfigStore config) : Fetcher
 public sealed partial class HyprlandMixxxFetcher(ConfigStore config) : Fetcher
 {
 	public override string Name => "hyprland-mixxx";
-	public override bool Enabled => config.Store?.DemoDataEnabled ?? false;
+	public override bool Enabled => config.Store?.HyprlandMixxxEnabled ?? false;
 
 	[GeneratedRegex(@"title:\s*(?<t>.*?)\s*\|\s*Mixxx\s*$", RegexOptions.Multiline)]
 	private static partial Regex MixxxTitleRegex();

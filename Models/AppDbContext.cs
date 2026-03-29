@@ -35,4 +35,5 @@ public class ConfigModel
 	public string PlexUrl { get; set; } = string.Empty;
 	public string PlexApi { get; set; } = string.Empty;
 	public bool PlexEnabled { get; set; } = false;
+	public bool HyprlandMixxxEnabled { get; set; } = false;
 }

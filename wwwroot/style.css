@@ -5,6 +5,7 @@ body.main {
 	font-size: 1.125rem;
 	color: #444;
 	padding: 0 10px;
+	overflow: hidden;
 }
 
 h1,
