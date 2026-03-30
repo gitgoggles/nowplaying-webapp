@@ -52,28 +52,17 @@ public sealed class MixxxNowPlaying : NowPlaying
 public sealed class JellyfinNowPlaying : NowPlaying
 {
 
-	public JellyfinNowPlaying(string input)
+	public JellyfinNowPlaying(string input, string userName)
 	{
-		var sessions = JsonSerializer.Deserialize<List<SessionDto>>(input, JsonSerializerOptions.Web);
+		var parsed = JsonDocument.Parse(input);
 
-		var nowPlaying = sessions?
-			.FirstOrDefault(s => s.NowPlayingItem != null)?
-			.NowPlayingItem;
+		var nowPlaying = parsed.RootElement
+			.EnumerateArray()
+			.FirstOrDefault(item => item.GetProperty("UserName").GetString() == userName);
 
-		var artistName = nowPlaying?.Artists?.FirstOrDefault();
-		var name = nowPlaying?.Name;
-
-		Artist = artistName;
-		Title = name;
+		Artist = nowPlaying.GetProperty("NowPlayingItem").GetProperty("Artists").EnumerateArray().FirstOrDefault().GetString();
+		Title = nowPlaying.GetProperty("NowPlayingItem").GetProperty("Name").GetString();
 	}
-
-	sealed record SessionDto(NowPlayingItemDto? NowPlayingItem);
-
-	sealed record NowPlayingItemDto(
-			string? Name,
-			string? Album,
-			string[]? Artists
-			);
 }
 
 public sealed class PlexNowPlaying : NowPlaying

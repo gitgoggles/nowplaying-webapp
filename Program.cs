@@ -13,10 +13,7 @@ public partial class Program
 
 		builder.Services.AddRazorComponents()
 			.AddInteractiveServerComponents();
-		builder.Services.AddMemoryCache();
-		builder.Services.AddHttpClient<JellyfinFetcher>(client =>
-			client.Timeout = TimeSpan.FromSeconds(5));
-
+		builder.Services.AddHttpClient();
 
 		builder.Services.AddSingleton<NowPlayingStore>();
 		builder.Services.AddSingleton<ConfigStore>();

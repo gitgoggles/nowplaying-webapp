@@ -31,6 +31,7 @@ public class ConfigModel
 	public bool DemoDataEnabled { get; set; } = false;
 	public string JellyfinUrl { get; set; } = string.Empty;
 	public string JellyfinApi { get; set; } = string.Empty;
+	public string JellyfinUserName { get; set; } = string.Empty;
 	public bool JellyfinEnabled { get; set; } = false;
 	public string PlexUrl { get; set; } = string.Empty;
 	public string PlexApi { get; set; } = string.Empty;
