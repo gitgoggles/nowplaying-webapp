@@ -75,3 +75,23 @@ public sealed class JellyfinNowPlaying : NowPlaying
 			string[]? Artists
 			);
 }
+
+public sealed class PlexNowPlaying : NowPlaying
+{
+	public PlexNowPlaying(string input, string userName)
+	{
+		var parsed = JsonDocument.Parse(input);
+
+		var nowPlaying = parsed.RootElement
+			.GetProperty("MediaContainer")
+			.GetProperty("Metadata")
+			.EnumerateArray()
+			.FirstOrDefault(item =>
+					item.GetProperty("User").GetProperty("title").GetString() == $"{userName}"
+				  );
+
+		Artist = nowPlaying.GetProperty("grandparentTitle").GetString();
+		Title = nowPlaying.GetProperty("title").GetString();
+	}
+
+}

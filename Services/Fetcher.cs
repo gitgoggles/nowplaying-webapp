@@ -144,3 +144,45 @@ public sealed class JellyfinFetcher(ConfigStore config, IMemoryCache cache, Http
 		}
 	}
 }
+
+public sealed class PlexFetcher(ConfigStore config, HttpClient http) : Fetcher
+{
+	private readonly HttpClient _http = http;
+	public override string Name => "plex";
+	public override bool Enabled => config.Store?.PlexEnabled ?? false;
+	private string? _plexUrl = Environment.GetEnvironmentVariable("PLEX_URL");
+	private string? _plexApiToken = Environment.GetEnvironmentVariable("PLEX_API_TOKEN");
+	private string? _plexUserName = Environment.GetEnvironmentVariable("PLEX_USER_NAME");
+
+	public override async Task<NowPlaying?> GetNowPlayingAsync(CancellationToken ct)
+	{
+		_plexUrl = config.Store?.PlexUrl ?? _plexUrl;
+		_plexApiToken = config.Store?.PlexApi ?? _plexApiToken;
+		_plexUserName = config.Store?.PlexUserName ?? _plexUserName;
+
+		if (string.IsNullOrWhiteSpace(_plexUrl) || string.IsNullOrWhiteSpace(_plexApiToken) || string.IsNullOrWhiteSpace(_plexUserName))
+		{
+			return null;
+		}
+
+		var url = $"{_plexUrl.TrimEnd('/')}/status/sessions";
+
+		try
+		{
+			using var request = new HttpRequestMessage(HttpMethod.Get, url);
+			request.Headers.Add("X-Plex-Token", $"{_plexApiToken}");
+			request.Headers.Add("Accept", "application/json");
+
+			using var response = await _http.SendAsync(request, ct);
+			response.EnsureSuccessStatusCode();
+			var json = await response.Content.ReadAsStringAsync(ct);
+
+			return new PlexNowPlaying(json, _plexUserName);
+
+		}
+		catch
+		{
+			return null;
+		}
+	}
+}

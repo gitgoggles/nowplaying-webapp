@@ -52,12 +52,14 @@
 		<h2>Plex</h2>
 		<label>URL</label>
 		<InputText @bind-Value="_Config.PlexUrl" />
-		<label>API Key</label>
+		<label>UserName</label>
+		<InputText @bind-Value="_Config.PlexUserName" />
+		<label>API Key (X-Plex-Token)</label>
 		<InputText type="password" @bind-Value="_Config.PlexApi" />
 		<div class="config-section-inline">
 			<label>Enabled</label>
 			<InputCheckbox @bind-Value="_Config.PlexEnabled" />
-			<NowPlayingCard FetcherName="Plex" Variant="Full" />
+			<NowPlayingCard FetcherName="plex" Variant="Full" />
 		</div>
 	</div>
 

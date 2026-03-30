@@ -22,6 +22,7 @@ public partial class Program
 		builder.Services.AddSingleton<ConfigStore>();
 		builder.Services.AddSingleton<Fetcher, HyprlandMixxxFetcher>();
 		builder.Services.AddSingleton<Fetcher, JellyfinFetcher>();
+		builder.Services.AddSingleton<Fetcher, PlexFetcher>();
 		builder.Services.AddSingleton<Fetcher, DemoFetcher>();
 
 		builder.Services.AddHostedService<FetcherPollingService>();
