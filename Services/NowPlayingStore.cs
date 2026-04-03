@@ -40,6 +40,7 @@ public sealed class NowPlayingStore
 		if (fetcherName != "Demo")
 		{
 			_nowPlayingByFetcher[fetcherName] = newValue;
+			Console.WriteLine($"{fetcherName}: {newValue}");
 			StoreUpdated?.Invoke(fetcherName, newValue);
 			return;
 		}

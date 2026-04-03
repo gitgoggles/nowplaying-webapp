@@ -18,6 +18,11 @@ public abstract class NowPlaying
 	};
 	public bool ArtistAndTitleAcquired =>
 		!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(Title);
+
+	public override string ToString()
+	{
+		return Full ?? "null";
+	}
 }
 public sealed class DemoNowPlaying : NowPlaying
 {
