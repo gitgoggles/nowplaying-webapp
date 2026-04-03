@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite;
 
 
 namespace nowplaying_webapp.Models;
@@ -18,7 +17,7 @@ public class AppDbContext : DbContext
 		var appFolderPath = Path.Join(path, "nowplayingapp");
 
 		Directory.CreateDirectory(appFolderPath);
-		DbPath = System.IO.Path.Join(appFolderPath, "nowplayingapp.db");
+		DbPath = Path.Join(appFolderPath, "nowplayingapp.db");
 	}
 
 	protected override void OnConfiguring(DbContextOptionsBuilder options)
