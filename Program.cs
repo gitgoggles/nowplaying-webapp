@@ -42,6 +42,11 @@ public partial class Program
 		app.MapRazorComponents<App>()
 			.AddInteractiveServerRenderMode();
 
+		app.MapPut("/api/{id}", async (int id, ApiNowPlaying nowplaying, NowPlayingStore store) =>
+				{
+					store.Update("API", nowplaying);
+				});
+
 		app.Run();
 	}
 }

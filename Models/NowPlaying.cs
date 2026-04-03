@@ -33,6 +33,15 @@ public sealed class DemoNowPlaying : NowPlaying
 	}
 }
 
+public sealed class ApiNowPlaying : NowPlaying
+{
+	public ApiNowPlaying(string artist, string title)
+	{
+		Artist = artist;
+		Title = title;
+	}
+}
+
 public sealed class MixxxNowPlaying : NowPlaying
 {
 	public MixxxNowPlaying(string? input)
