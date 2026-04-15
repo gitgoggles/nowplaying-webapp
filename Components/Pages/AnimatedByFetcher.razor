@@ -1,9 +1,9 @@
 @page "/animated/{fetcher}"
 @rendermode InteractiveServer
 
-<NowPlayingCard FetcherName="@Fetcher"/>
+<NowPlayingCard FetcherName="@Fetcher" ExtraClass="animated-card" />
 
 @code {
-	 [Parameter]
-	 public string? Fetcher { get; set; }
+	[Parameter]
+	public string? Fetcher { get; set; }
 }
